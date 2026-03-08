@@ -82,6 +82,8 @@ CREATE INDEX idx_profiles_org ON profiles(org_id);
 CREATE INDEX idx_profile_ident_org_type_value ON profile_identifiers(org_id, id_type, id_value);
 CREATE INDEX idx_profile_attr_org_profile_key ON profile_attributes(org_id, profile_id, attr_key);
 
+-- Note: This index may already exist from 006_org_id.sql, so we create it conditionally
+-- CREATE INDEX IF NOT EXISTS is not supported in MySQL, so we'll let the setup script handle duplicates
 CREATE INDEX idx_events_org_campaign_time ON events(org_id, campaign_id, occurred_at);
 CREATE INDEX idx_events_org_profile_time ON events(org_id, profile_id, occurred_at);
 

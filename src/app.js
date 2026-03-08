@@ -14,6 +14,7 @@ import { eventRouter } from "./domains/events/event.routes.js";
 
 import { revenueRouter } from "./domains/revenue/revenue.routes.js";
 import { attributionRouter } from "./domains/attribution/attribution.routes.js";
+import { demoRouter } from "./domains/demo/demo.routes.js";
 
 import { reportingRouter } from "./domains/reporting/reporting.routes.js";
 
@@ -32,7 +33,21 @@ export function buildApp() {
   app.use(requestId);
   app.use(pinoHttp({ logger }));
 
+  // CORS setup - must be before routes
+  app.use(cors({
+    origin: ["http://localhost:3001", "http://127.0.0.1:3001"],
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-API-Key", "X-Org-Id"],
+  }));
+  
+  // important: respond to preflight
+  app.options("*", cors());
+
   app.get("/health", (_req, res) => res.json({ ok: true, product: "VeroAI", step: 1 }));
+  
+  // Test endpoint to verify demo route is accessible
+  app.get("/v1/demo/test", (_req, res) => res.json({ ok: true, message: "Demo route is accessible" }));
 
   //app.use("/v1/campaigns", campaignRouter);
   //app.use("/v1/content-assets", contentRouter);
@@ -43,16 +58,7 @@ export function buildApp() {
 
   app.use("/v1/revenue-events", revenueRouter);
   app.use("/v1/attribution", attributionRouter);
-
-  app.use(cors({
-    origin: ["http://localhost:3001", "http://127.0.0.1:3001"],
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-API-Key", "X-Org-Id"],
-  }));
-  
-  // important: respond to preflight
-  app.options("*", cors());
+  app.use("/v1/demo", demoRouter);
 
   //app.use("/v1/reporting", reportingRouter);
 

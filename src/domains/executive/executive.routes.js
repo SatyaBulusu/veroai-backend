@@ -4,12 +4,15 @@ import * as svc from "./executive.service.js";
 const router = express.Router();
 
 function orgId(req) {
-  return req.orgId || req.headers["x-org-id"] || req.headers["x-orgid"] || req.headers["x_org_id"];
+  return req.orgId || req.auth?.orgId || req.headers["x-org-id"] || req.headers["x-orgid"] || req.headers["x_org_id"] || "org_local";
 }
 
 router.get("/summary", async (req, res, next) => {
   try {
-    const out = await svc.getSummary(orgId(req), req.query);
+    const org = orgId(req);
+    console.log('Executive summary request:', { org, query: req.query });
+    const out = await svc.getSummary(org, req.query);
+    console.log('Executive summary response:', { org, window_days: out.window_days, model: out.model, kpis: out.kpis });
     res.json(out);
   } catch (e) { next(e); }
 });
